@@ -6,6 +6,9 @@ capture, code exchange, secure session storage, API headers, and logout.
 
 The client API key identifies the church app; it is not treated as a secret in
 a compiled mobile application. The member bearer token remains confidential.
+The API key is the package's only runtime configuration. Network requests are
+locked to `https://api.thefaithapp.com`, and hosted sign-in is accepted only
+from `https://auth.thefaithapp.com`.
 
 The package is currently an unpublished `0.1.0` development release. Publishing
 remains disabled until the verified pub.dev publisher is selected and the final
@@ -93,26 +96,18 @@ await auth.signOut(); // Revokes the server token and removes the secure copy.
 auth.dispose();
 ```
 
-## Local testing
+## Security model
 
-Plain HTTP is rejected unless it is enabled explicitly:
-
-```dart
-final auth = TheFaithAppAuth(
-  apiKey: 'local-client-key',
-  apiBaseUrl: Uri.parse('http://127.0.0.1:8000'),
-  allowInsecureHttpForTesting: true,
-);
-```
-
-Never enable insecure HTTP in production builds.
-
-## Advanced configuration
-
-`TheFaithAppAuth` accepts injectable browser, storage, callback-provider, and
-HTTP-client boundaries for tests or custom platform integrations. An explicit
-`redirectUri` can also be supplied, but custom Android schemes must be added to
-the consuming application's manifest.
+- The client API key is a public app identifier. Like any value compiled into
+  a mobile app, it can be extracted and must not be treated as a secret.
+- A client key alone cannot call protected `v1` endpoints. Those requests also
+  require a signed-in member's bearer token for the same church.
+- Every sign-in uses random state and S256 PKCE. Authorization codes are
+  short-lived, single-use, and bound to the registered callback.
+- The package stores bearer tokens in Keychain or Keystore and refuses to send
+  them to any host other than the production TheFaithApp API.
+- Rotate a client key from Developer Access if it is being abused, then update
+  the connected app.
 
 See the standalone consumer app in `examples/thefaithapp_auth_example` for a
 complete integration.

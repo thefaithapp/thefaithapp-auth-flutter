@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'environment.dart';
 import 'exceptions.dart';
 import 'models.dart';
 
@@ -12,16 +13,10 @@ final class HostedAuthStart {
 }
 
 final class HostedAuthApi {
-  const HostedAuthApi({
-    required this.apiKey,
-    required this.baseUrl,
-    required this.allowInsecureHttpForTesting,
-    required http.Client client,
-  }) : _client = client;
+  const HostedAuthApi({required this.apiKey, required http.Client client})
+    : _client = client;
 
   final String apiKey;
-  final Uri baseUrl;
-  final bool allowInsecureHttpForTesting;
   final http.Client _client;
 
   Future<HostedAuthStart> start({
@@ -45,15 +40,12 @@ final class HostedAuthApi {
     }
 
     final parsed = Uri.tryParse(authUrl);
-    final secureUrl = parsed?.scheme == 'https';
-    final allowedTestUrl =
-        allowInsecureHttpForTesting && parsed?.scheme == 'http';
     if (parsed == null ||
         parsed.host.isEmpty ||
-        (!secureUrl && !allowedTestUrl)) {
+        !_sameOrigin(parsed, TheFaithAppEnvironment.hostedAuthBaseUrl)) {
       throw const TheFaithAuthException(
         TheFaithAuthErrorCode.invalidResponse,
-        'The server returned an invalid hosted auth URL.',
+        'The server returned a hosted auth URL outside the production origin.',
       );
     }
     return HostedAuthStart(parsed);
@@ -104,7 +96,7 @@ final class HostedAuthApi {
     http.Response response;
     try {
       response = await _client.post(
-        baseUrl.resolve(path),
+        TheFaithAppEnvironment.apiBaseUrl.resolve(path),
         headers: <String, String>{
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -173,4 +165,9 @@ final class HostedAuthApi {
     }
     return 'The hosted authentication request failed.';
   }
+
+  bool _sameOrigin(Uri first, Uri second) =>
+      first.scheme.toLowerCase() == second.scheme.toLowerCase() &&
+      first.host.toLowerCase() == second.host.toLowerCase() &&
+      first.port == second.port;
 }

@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 
+import 'environment.dart';
 import 'exceptions.dart';
 import 'session_store.dart';
 
@@ -7,22 +8,19 @@ import 'session_store.dart';
 final class TheFaithAuthorizedClient extends http.BaseClient {
   TheFaithAuthorizedClient({
     required String apiKey,
-    required Uri apiBaseUrl,
     required TheFaithAuthSessionStore sessionStore,
     http.Client? innerClient,
   }) : _apiKey = apiKey,
-       _apiBaseUrl = apiBaseUrl,
        _sessionStore = sessionStore,
        _innerClient = innerClient ?? http.Client();
 
   final String _apiKey;
-  final Uri _apiBaseUrl;
   final TheFaithAuthSessionStore _sessionStore;
   final http.Client _innerClient;
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    if (!_sameOrigin(request.url, _apiBaseUrl)) {
+    if (!_sameOrigin(request.url, TheFaithAppEnvironment.apiBaseUrl)) {
       throw const TheFaithAuthException(
         TheFaithAuthErrorCode.unauthorizedHost,
         'The authorized client can only send requests to the configured TheFaithApp API host.',

@@ -4,6 +4,11 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:thefaithapp_auth/src/auth_browser.dart';
+import 'package:thefaithapp_auth/src/auth_client.dart';
+import 'package:thefaithapp_auth/src/authorized_client.dart';
+import 'package:thefaithapp_auth/src/callback_uri_provider.dart';
+import 'package:thefaithapp_auth/src/session_store.dart';
 import 'package:thefaithapp_auth/thefaithapp_auth.dart';
 
 void main() {
@@ -24,6 +29,30 @@ void main() {
       () => TheFaithPackageCallbackUriProvider.forPackageName(
         'com.example.church_app',
       ),
+      throwsA(
+        isA<TheFaithAuthException>().having(
+          (error) => error.code,
+          'code',
+          TheFaithAuthErrorCode.configuration,
+        ),
+      ),
+    );
+  });
+
+  test('public SDK resolves API calls only against production', () {
+    final auth = TheFaithAppAuth(apiKey: apiKey);
+
+    expect(
+      auth.apiUri('/v1/user'),
+      Uri.parse('https://api.thefaithapp.com/v1/user'),
+    );
+
+    auth.dispose();
+  });
+
+  test('public SDK requires a client API key', () {
+    expect(
+      () => TheFaithAppAuth(apiKey: '  '),
       throwsA(
         isA<TheFaithAuthException>().having(
           (error) => error.code,
@@ -66,7 +95,7 @@ void main() {
           },
         );
       });
-      final auth = TheFaithAppAuth(
+      final auth = TheFaithAppAuthClient(
         apiKey: apiKey,
         redirectUri: callbackUri,
         browser: browser,
@@ -106,7 +135,7 @@ void main() {
       tokenExchangeCalled = true;
       return http.Response(jsonEncode(sessionPayload), 200);
     });
-    final auth = TheFaithAppAuth(
+    final auth = TheFaithAppAuthClient(
       apiKey: apiKey,
       redirectUri: callbackUri,
       browser: CallbackBrowser(
@@ -144,7 +173,6 @@ void main() {
     });
     final client = TheFaithAuthorizedClient(
       apiKey: apiKey,
-      apiBaseUrl: Uri.parse('https://api.thefaithapp.com'),
       sessionStore: store,
       innerClient: inner,
     );
@@ -160,7 +188,6 @@ void main() {
   test('authorizedClient refuses to send the token to another host', () async {
     final client = TheFaithAuthorizedClient(
       apiKey: apiKey,
-      apiBaseUrl: Uri.parse('https://api.thefaithapp.com'),
       sessionStore: MemorySessionStore()..session = testSession,
       innerClient: MockClient((_) async => http.Response('', 200)),
     );
@@ -180,7 +207,7 @@ void main() {
 
   test('signOut revokes the token and clears local storage', () async {
     final store = MemorySessionStore()..session = testSession;
-    final auth = TheFaithAppAuth(
+    final auth = TheFaithAppAuthClient(
       apiKey: apiKey,
       redirectUri: callbackUri,
       sessionStore: store,
@@ -197,19 +224,29 @@ void main() {
     expect(store.session, isNull);
   });
 
-  test('plain HTTP requires an explicit local-testing opt in', () {
-    expect(
-      () => TheFaithAppAuth(
-        apiKey: apiKey,
-        apiBaseUrl: Uri.parse('http://127.0.0.1:8000'),
-        redirectUri: callbackUri,
-        sessionStore: MemorySessionStore(),
+  test('signIn rejects hosted auth URLs outside production', () async {
+    final auth = TheFaithAppAuthClient(
+      apiKey: apiKey,
+      redirectUri: callbackUri,
+      browser: CallbackBrowser(() => fail('Browser must not be opened.')),
+      sessionStore: MemorySessionStore(),
+      httpClient: MockClient(
+        (_) async => http.Response(
+          jsonEncode(<String, Object?>{
+            'auth_url': 'https://attacker.example/member/sign-in',
+          }),
+          200,
+        ),
       ),
+    );
+
+    await expectLater(
+      auth.signIn(),
       throwsA(
         isA<TheFaithAuthException>().having(
           (error) => error.code,
           'code',
-          TheFaithAuthErrorCode.configuration,
+          TheFaithAuthErrorCode.invalidResponse,
         ),
       ),
     );

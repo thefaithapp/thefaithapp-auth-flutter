@@ -38,8 +38,7 @@ final class TheFaithPackageCallbackUriProvider
       throw TheFaithAuthException(
         TheFaithAuthErrorCode.configuration,
         'The application ID cannot be converted into a callback URI. '
-        'Use an application ID containing only letters, numbers, dots, or hyphens, '
-        'or provide an explicit redirectUri.',
+        'Use an application ID containing only letters, numbers, dots, or hyphens.',
       );
     }
 
