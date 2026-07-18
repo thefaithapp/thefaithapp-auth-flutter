@@ -7,9 +7,9 @@ capture, code exchange, secure session storage, API headers, and logout.
 The client API key identifies the church app; it is not treated as a secret in
 a compiled mobile application. The member bearer token remains confidential.
 
-The package is currently an unpublished `0.1.0` development release. Public
-licensing and the verified pub.dev publisher must be selected before removing
-`publish_to: none`.
+The package is currently an unpublished `0.1.0` development release. Publishing
+remains disabled until the verified pub.dev publisher is selected and the final
+release review is complete.
 
 ## Install during development
 
@@ -116,3 +116,7 @@ the consuming application's manifest.
 
 See the standalone consumer app in `examples/thefaithapp_auth_example` for a
 complete integration.
+
+## License
+
+TheFaithApp Auth is available under the [MIT License](LICENSE).
