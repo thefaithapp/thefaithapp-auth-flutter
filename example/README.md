@@ -6,5 +6,5 @@ Run the small pub.dev package example with a client key:
 flutter run --dart-define=TFA_CLIENT_KEY=replace-with-client-key
 ```
 
-For full callback, API, and local environment testing, use the standalone app
-at `examples/thefaithapp_auth_example` in the repository root.
+This example exercises callback handling, authenticated API requests, session
+restoration, and logout with the published package API.

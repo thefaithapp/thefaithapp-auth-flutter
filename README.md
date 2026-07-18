@@ -7,24 +7,12 @@ capture, code exchange, secure session storage, API headers, and logout.
 Use the client API key from `Settings > Developer Access` to initialize the
 package. The member session is stored securely on the device.
 
-The package is currently an unpublished `0.1.0` development release. Publishing
-remains disabled until the verified pub.dev publisher is selected and the final
-release review is complete.
-
-## Install during development
-
-Until the first pub.dev release, use the public Git repository:
+## Install
 
 ```yaml
 dependencies:
-  thefaithapp_auth:
-    git:
-      url: https://github.com/thefaithapp/thefaithapp-auth-flutter.git
-      ref: main
+  thefaithapp_auth: ^0.1.0
 ```
-
-Pin `ref` to a release tag instead of `main` when tagged releases are
-available.
 
 ## Configure the callback
 
@@ -93,8 +81,7 @@ await auth.signOut(); // Revokes the server token and removes the secure copy.
 auth.dispose();
 ```
 
-See the standalone consumer app in `examples/thefaithapp_auth_example` for a
-complete integration.
+See the [`example`](example) app for a complete integration.
 
 ## License
 
