@@ -1,0 +1,18 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <activity
+      android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
+      android:exported="true"
+      android:taskAffinity="">
+      <intent-filter android:label="thefaithapp_auth">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data
+          android:scheme="${applicationId}.thefaithapp"
+          android:host="auth"
+          android:path="/callback" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>
