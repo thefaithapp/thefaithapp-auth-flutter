@@ -4,11 +4,8 @@
 bearer token for the `v1` API. It handles state validation, S256 PKCE, callback
 capture, code exchange, secure session storage, API headers, and logout.
 
-The client API key identifies the church app; it is not treated as a secret in
-a compiled mobile application. The member bearer token remains confidential.
-The API key is the package's only runtime configuration. Network requests are
-locked to `https://api.thefaithapp.com`, and hosted sign-in is accepted only
-from `https://auth.thefaithapp.com`.
+Use the client API key from `Settings > Developer Access` to initialize the
+package. The member session is stored securely on the device.
 
 The package is currently an unpublished `0.1.0` development release. Publishing
 remains disabled until the verified pub.dev publisher is selected and the final
@@ -95,19 +92,6 @@ final savedSession = await auth.currentSession();
 await auth.signOut(); // Revokes the server token and removes the secure copy.
 auth.dispose();
 ```
-
-## Security model
-
-- The client API key is a public app identifier. Like any value compiled into
-  a mobile app, it can be extracted and must not be treated as a secret.
-- A client key alone cannot call protected `v1` endpoints. Those requests also
-  require a signed-in member's bearer token for the same church.
-- Every sign-in uses random state and S256 PKCE. Authorization codes are
-  short-lived, single-use, and bound to the registered callback.
-- The package stores bearer tokens in Keychain or Keystore and refuses to send
-  them to any host other than the production TheFaithApp API.
-- Rotate a client key from Developer Access if it is being abused, then update
-  the connected app.
 
 See the standalone consumer app in `examples/thefaithapp_auth_example` for a
 complete integration.

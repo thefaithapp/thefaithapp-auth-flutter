@@ -3,11 +3,10 @@ import 'package:http/http.dart' as http;
 import 'auth_client.dart';
 import 'models.dart';
 
-/// The production entry point for TheFaithApp hosted member authentication.
+/// The entry point for TheFaithApp hosted member authentication.
 ///
-/// The client API key is the only required configuration. The API and hosted
-/// auth origins are fixed by the package, and the callback is derived from the
-/// consuming application's Android application ID or iOS bundle ID.
+/// Provide the client API key from Developer Access. The callback is derived
+/// from the consuming application's Android application ID or iOS bundle ID.
 final class TheFaithAppAuth {
   TheFaithAppAuth({required String apiKey})
     : _client = TheFaithAppAuthClient(apiKey: apiKey);
@@ -26,10 +25,10 @@ final class TheFaithAppAuth {
   /// Returns the current bearer token, if available.
   Future<String?> accessToken() => _client.accessToken();
 
-  /// Builds a production-only HTTP client that injects both auth headers.
+  /// Builds an HTTP client that injects both auth headers.
   http.Client authorizedClient() => _client.authorizedClient();
 
-  /// Resolves a relative v1 path against the production API origin.
+  /// Resolves a relative v1 API path.
   Uri apiUri(String path, {Map<String, String>? queryParameters}) =>
       _client.apiUri(path, queryParameters: queryParameters);
 

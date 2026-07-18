@@ -45,7 +45,7 @@ final class HostedAuthApi {
         !_sameOrigin(parsed, TheFaithAppEnvironment.hostedAuthBaseUrl)) {
       throw const TheFaithAuthException(
         TheFaithAuthErrorCode.invalidResponse,
-        'The server returned a hosted auth URL outside the production origin.',
+        'The server returned an invalid hosted auth URL.',
       );
     }
     return HostedAuthStart(parsed);

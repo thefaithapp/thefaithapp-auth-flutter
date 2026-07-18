@@ -12,7 +12,7 @@ import 'models.dart';
 import 'pkce.dart';
 import 'session_store.dart';
 
-/// Internal hosted-auth client used by the public production-only facade.
+/// Internal hosted-auth client used by the public facade.
 ///
 /// This lives under `src/` so package tests can inject deterministic browser,
 /// storage, and HTTP boundaries without exposing them in the supported API.
