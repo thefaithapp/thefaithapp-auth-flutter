@@ -58,6 +58,17 @@ print(session.member.name);
 
 Do not log or include `session.accessToken` in crash reports.
 
+For local SDK development, the API and hosted-auth origins can be selected at
+build time. Production URLs remain the default, and insecure HTTP origins are
+accepted only for loopback hosts:
+
+```bash
+flutter run \
+  --dart-define=TFA_CLIENT_KEY=replace-with-client-key \
+  --dart-define=TFA_API_BASE_URL=http://127.0.0.1:8000 \
+  --dart-define=TFA_HOSTED_AUTH_BASE_URL=http://127.0.0.1:3001
+```
+
 ## Call the v1 API
 
 The authorized client only sends credentials to the configured TheFaithApp API

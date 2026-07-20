@@ -8,6 +8,7 @@ import 'package:thefaithapp_auth/src/auth_browser.dart';
 import 'package:thefaithapp_auth/src/auth_client.dart';
 import 'package:thefaithapp_auth/src/authorized_client.dart';
 import 'package:thefaithapp_auth/src/callback_uri_provider.dart';
+import 'package:thefaithapp_auth/src/environment.dart';
 import 'package:thefaithapp_auth/src/session_store.dart';
 import 'package:thefaithapp_auth/thefaithapp_auth.dart';
 
@@ -16,6 +17,44 @@ void main() {
   final callbackUri = Uri.parse(
     'com.example.church.thefaithapp://auth/callback',
   );
+
+  group('environment origins', () {
+    test('allows HTTPS origins and loopback HTTP for local development', () {
+      expect(
+        parseTheFaithAppEnvironmentUri(
+          'https://api.example.test',
+          name: 'origin',
+        ),
+        Uri.parse('https://api.example.test'),
+      );
+      expect(
+        parseTheFaithAppEnvironmentUri('http://127.0.0.1:8000', name: 'origin'),
+        Uri.parse('http://127.0.0.1:8000'),
+      );
+      expect(
+        parseTheFaithAppEnvironmentUri(
+          'http://localhost:3001/',
+          name: 'origin',
+        ),
+        Uri.parse('http://localhost:3001'),
+      );
+    });
+
+    test('rejects unsafe or non-origin configuration', () {
+      for (final value in <String>[
+        'http://api.example.test',
+        'https://user:password@api.example.test',
+        'https://api.example.test/v1',
+        'https://api.example.test?tenant=1',
+      ]) {
+        expect(
+          () => parseTheFaithAppEnvironmentUri(value, name: 'origin'),
+          throwsArgumentError,
+          reason: value,
+        );
+      }
+    });
+  });
 
   test('derives a mobile callback URI from the application ID', () {
     expect(
@@ -39,7 +78,7 @@ void main() {
     );
   });
 
-  test('public SDK resolves API calls only against production', () {
+  test('public SDK defaults API calls to production', () {
     final auth = TheFaithAppAuth(apiKey: apiKey);
 
     expect(
