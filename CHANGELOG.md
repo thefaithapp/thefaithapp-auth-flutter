@@ -1,3 +1,9 @@
+## Unreleased
+
+- Allow explicit loopback API and hosted-auth origins for local SDK source builds
+  while keeping production as the default and rejecting unsafe origin values.
+- Link the official Flutter quickstart, hosted authentication guide, and example.
+
 ## 0.1.0
 
 - Add TheFaithApp hosted member sign-in for Android and iOS.
